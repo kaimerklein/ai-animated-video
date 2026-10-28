@@ -1,0 +1,543 @@
+<title>Ilyra · The Lighthouse</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Unicase:wght@300;500&family=Spectral:ital,wght@0,300;1,300&family=JetBrains+Mono:wght@400&display=swap">
+<style>
+/* Layout: full-bleed WebGL canvas, a quiet HUD pinned to the bottom edge. Single dark world by design. */
+:root {
+  --night: #05070b;
+  --mist: #9fb0c4;
+  --mist-dim: #5d6b7c;
+  --bone: #e4e7ea;
+  --amber: #ffb066;
+  --line: rgba(159, 176, 196, 0.22);
+  --f-display: "Cormorant Unicase", "Cormorant Garamond", Georgia, serif;
+  --f-body: "Spectral", Georgia, serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body {
+  background: var(--night);
+  color: var(--bone);
+  overflow: hidden;
+  font-family: var(--f-body);
+  padding-block: 0;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+canvas#stage { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+
+.veil { position: fixed; inset: 0; pointer-events: none; }
+.vignette { background: radial-gradient(ellipse at 50% 45%, transparent 45%, rgba(2,3,6,0.55) 80%, rgba(2,3,6,0.9) 100%); }
+.grain {
+  opacity: 0.09; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  animation: grain 0.9s steps(6) infinite;
+}
+@keyframes grain {
+  0% { transform: translate(0,0); } 20% { transform: translate(-3%,2%); } 40% { transform: translate(2%,-3%); }
+  60% { transform: translate(-2%,-1%); } 80% { transform: translate(3%,3%); } 100% { transform: translate(0,0); }
+}
+
+.hud {
+  position: fixed; left: 0; right: 0; bottom: 0;
+  padding-left: max(24px, env(safe-area-inset-left, 0px));
+  padding-right: max(24px, env(safe-area-inset-right, 0px));
+  padding-bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+  padding-top: 60px;
+  background: linear-gradient(to top, rgba(3,4,7,0.78), rgba(3,4,7,0));
+  display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 18px 32px;
+}
+.mark { display: grid; gap: 4px; min-width: 0; }
+.mark h1 {
+  margin: 0; font-family: var(--f-display); font-weight: 300;
+  font-size: clamp(2.6rem, 7vw, 4.6rem); letter-spacing: 0.32em; line-height: 0.9;
+  text-shadow: 0 0 24px rgba(255,176,102,0.18);
+}
+.mark p { margin: 0; font-style: italic; color: var(--mist); font-size: 1rem; }
+
+.deck { display: grid; gap: 12px; min-width: 0; width: min(440px, 100%); }
+.timeline { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.seg { display: grid; gap: 6px; }
+.seg .bar { height: 2px; background: var(--line); overflow: hidden; }
+.seg .fill { height: 100%; width: 0%; background: var(--mist); }
+.seg.on .fill { background: var(--amber); }
+.seg span {
+  font-family: var(--f-mono); font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--mist-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.seg.on span { color: var(--bone); }
+
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.btn {
+  font-family: var(--f-mono); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--bone); background: rgba(10,14,20,0.6); border: 1px solid var(--line);
+  padding: 9px 14px; cursor: pointer; border-radius: 2px;
+}
+.btn:hover { border-color: var(--mist); }
+.btn:focus-visible { outline: 1px solid var(--amber); outline-offset: 2px; }
+#song { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.status { font-family: var(--f-mono); font-size: 0.68rem; color: var(--mist-dim); letter-spacing: 0.06em; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.status b { color: var(--amber); font-weight: 400; }
+
+.fallback { position: fixed; inset: 0; display: grid; place-items: center; text-align: center; padding: 24px; color: var(--mist); }
+@media (max-width: 520px) { .hud { padding-top: 40px; } .deck { width: 100%; } }
+</style>
+
+<canvas id="stage" aria-label="Animated night scene: a lighthouse on basalt columns above a dark sea, its beam turning through fog"></canvas>
+<div class="veil vignette"></div>
+<div class="veil grain"></div>
+<div class="fallback" id="fallback" hidden>WebGL is not available in this browser, so the scene cannot render.</div>
+
+<div class="hud">
+  <div class="mark">
+    <h1>Ilyra</h1>
+    <p>The Lighthouse — code study 01</p>
+  </div>
+  <div class="deck">
+    <div class="timeline" aria-label="Song sections">
+      <div class="seg" data-i="0"><div class="bar"><div class="fill"></div></div><span>Verse · fog</span></div>
+      <div class="seg" data-i="1"><div class="bar"><div class="fill"></div></div><span>Chorus · the beam</span></div>
+      <div class="seg" data-i="2"><div class="bar"><div class="fill"></div></div><span>Bridge · stillness</span></div>
+    </div>
+    <div class="controls">
+      <button class="btn" id="play" type="button">Pause</button>
+      <label class="btn" for="song" id="songLabel">Load a song</label>
+      <input type="file" id="song" accept="audio/*">
+      <button class="btn" id="full" type="button">Fullscreen</button>
+    </div>
+    <div class="status" id="status">Pulse: built-in heartbeat at 66 bpm. Load an MP3 to drive the scene.</div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(() => {
+  const canvas = document.getElementById('stage');
+  let renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+  } catch (e) {
+    document.getElementById('fallback').hidden = false;
+    return;
+  }
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+  const scene = new THREE.Scene();
+  const FOG = new THREE.Color(0x141c27);
+  scene.fog = new THREE.FogExp2(FOG, 0.016);
+  const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 2500);
+
+  const MOON = new THREE.Vector3(-0.42, 0.33, -0.85).normalize();
+  const LH = new THREE.Vector3(0, 10, 0);       // tower base on the cliff top
+  const LANTERN_Y = 25;
+
+  // ---------- Sky ----------
+  const skyMat = new THREE.ShaderMaterial({
+    side: THREE.BackSide, depthWrite: false,
+    uniforms: { uFog: { value: FOG }, uMoon: { value: MOON } },
+    vertexShader: `varying vec3 vDir; void main(){ vDir = normalize(position); gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
+    fragmentShader: `
+      uniform vec3 uFog; uniform vec3 uMoon; varying vec3 vDir;
+      void main(){
+        float h = vDir.y;
+        vec3 top = vec3(0.006,0.010,0.020);
+        vec3 col = mix(uFog, top, smoothstep(-0.02, 0.6, h));
+        float m = max(dot(normalize(vDir), uMoon), 0.0);
+        col += vec3(0.30,0.38,0.52) * pow(m, 14.0) * 0.30;
+        col += vec3(0.60,0.70,0.85) * pow(m, 600.0) * 0.8;
+        col += vec3(0.85,0.90,1.00) * smoothstep(0.99935, 0.99965, m);
+        gl_FragColor = vec4(col, 1.0);
+      }`
+  });
+  const sky = new THREE.Mesh(new THREE.SphereGeometry(900, 48, 24), skyMat);
+  scene.add(sky);
+
+  // stars, parented to the sky so they follow the camera
+  {
+    const n = 900, p = new Float32Array(n * 3);
+    for (let i = 0; i < n; i++) {
+      const u = Math.random() * Math.PI * 2, y = 0.12 + Math.random() * 0.88, r = Math.sqrt(1 - y * y);
+      p.set([Math.cos(u) * r * 850, y * 850, Math.sin(u) * r * 850], i * 3);
+    }
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(p, 3));
+    var stars = new THREE.Points(g, new THREE.PointsMaterial({ color: 0xb8c6d8, size: 1.3, sizeAttenuation: false, transparent: true, opacity: 0.55, fog: false, depthWrite: false }));
+    sky.add(stars);
+  }
+
+  // ---------- Lights ----------
+  scene.add(new THREE.AmbientLight(0x1c2738, 0.9));
+  const moonLight = new THREE.DirectionalLight(0x7d93b4, 0.55);
+  moonLight.position.copy(MOON).multiplyScalar(100);
+  scene.add(moonLight);
+  const lanternLight = new THREE.PointLight(0xffa955, 1.4, 34, 2);
+  lanternLight.position.set(0, LANTERN_Y, 0);
+  scene.add(lanternLight);
+
+  // ---------- Sea ----------
+  const seaGeo = new THREE.PlaneGeometry(1400, 1400, 220, 220);
+  seaGeo.rotateX(-Math.PI / 2);
+  const seaMat = new THREE.ShaderMaterial({
+    uniforms: {
+      uTime: { value: 0 }, uBeamAngle: { value: 0 }, uBeamPower: { value: 1 }, uGlow: { value: 1 },
+      uLH: { value: new THREE.Vector3(0, LANTERN_Y, 0) }, uCam: { value: new THREE.Vector3() },
+      uFog: { value: FOG }, uFogDensity: { value: 0.016 }
+    },
+    vertexShader: `
+      uniform float uTime; varying vec3 vWorld; varying float vH;
+      void main(){
+        vec3 p = position;
+        float h = sin(p.x*0.08 + uTime*0.6)*0.6 + sin(p.z*0.11 - uTime*0.45)*0.5
+                + sin((p.x+p.z)*0.23 + uTime*1.1)*0.18 + sin((p.x-p.z)*0.41 - uTime*1.7)*0.07;
+        p.y += h; vH = h;
+        vec4 w = modelMatrix * vec4(p,1.0); vWorld = w.xyz;
+        gl_Position = projectionMatrix * viewMatrix * w;
+      }`,
+    fragmentShader: `
+      uniform float uTime, uBeamAngle, uBeamPower, uGlow, uFogDensity;
+      uniform vec3 uLH, uCam, uFog; varying vec3 vWorld; varying float vH;
+      const float PI = 3.14159265;
+      float adiff(float a, float b){ return abs(mod(a - b + PI, 2.0*PI) - PI); }
+      void main(){
+        vec3 col = vec3(0.010,0.017,0.030) + vH*0.010;
+        vec2 d = vWorld.xz - uLH.xz; float dist = length(d); float ang = atan(d.y, d.x);
+        float a = min(adiff(ang, uBeamAngle), adiff(ang, uBeamAngle + PI));
+        float beam = smoothstep(0.32, 0.0, a) * exp(-dist*0.010) * smoothstep(8.0, 22.0, dist);
+        col += vec3(0.80,0.76,0.66) * beam * uBeamPower * 0.32;
+        // warm streak of the lantern reflected toward the camera
+        vec2 toCam = normalize(uCam.xz - uLH.xz);
+        float along = dot(d, toCam);
+        float perp = length(d - toCam*along);
+        float streak = exp(-perp*0.55) * smoothstep(0.0, 12.0, along) * exp(-along*0.025);
+        float ripple = 0.55 + 0.45*sin(along*1.7 - uTime*2.3 + vH*6.0);
+        col += vec3(1.0,0.62,0.30) * streak * ripple * uGlow * 0.16;
+        // cold glints
+        float g = pow(max(0.0, sin(vWorld.x*0.9 + uTime*0.8) * sin(vWorld.z*0.7 - uTime*0.6)), 10.0);
+        col += vec3(0.45,0.55,0.70) * g * 0.08;
+        float fd = length(vWorld - uCam);
+        float f = 1.0 - exp(-pow(fd*uFogDensity, 2.0));
+        gl_FragColor = vec4(mix(col, uFog, f), 1.0);
+      }`
+  });
+  scene.add(new THREE.Mesh(seaGeo, seaMat));
+
+  // ---------- Basalt columns (hex grid, like a causeway) ----------
+  {
+    const hash = (a, b) => { const s = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return s - Math.floor(s); };
+    const cols = [];
+    const S = 1.86;
+    for (let q = -14; q <= 14; q++) for (let r = -14; r <= 14; r++) {
+      const x = S * (q + r / 2), z = S * r * 0.866;
+      const rr = Math.hypot(x, z * 1.35);
+      const n = hash(q, r);
+      const edge = 15.5 + hash(r, q) * 3.5;
+      if (rr > edge) continue;
+      let top;
+      if (rr < 3.6) top = 10;
+      else if (rr < 9) top = 10 + (n - 0.5) * 0.9;
+      else top = 10 - (rr - 9) * 1.55 + (n - 0.5) * 2.2;
+      cols.push([x, z, Math.max(top, -0.6 + n), n]);
+    }
+    const geo = new THREE.CylinderGeometry(1, 1, 1, 6);
+    const mat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.92, metalness: 0.05, flatShading: true });
+    const inst = new THREE.InstancedMesh(geo, mat, cols.length);
+    const m = new THREE.Matrix4(), q4 = new THREE.Quaternion(), e = new THREE.Euler(), s = new THREE.Vector3(), p = new THREE.Vector3(), c = new THREE.Color();
+    cols.forEach(([x, z, top, n], i) => {
+      const bottom = -5;
+      e.set((n - 0.5) * 0.04, Math.PI / 6, (hash(n, x) - 0.5) * 0.04);
+      q4.setFromEuler(e);
+      p.set(x, (top + bottom) / 2, z);
+      s.set(0.97, top - bottom, 0.97);
+      m.compose(p, q4, s);
+      inst.setMatrixAt(i, m);
+      const v = 0.075 + n * 0.05;
+      c.setRGB(v * 0.9, v * 0.95, v * 1.08);
+      inst.setColorAt(i, c);
+    });
+    scene.add(inst);
+  }
+
+  // ---------- Lighthouse ----------
+  const lighthouse = new THREE.Group();
+  lighthouse.position.copy(LH);
+  {
+    const stone = new THREE.MeshStandardMaterial({ color: 0x3a3f48, roughness: 0.88, metalness: 0.02 });
+    const iron = new THREE.MeshStandardMaterial({ color: 0x15181d, roughness: 0.6, metalness: 0.5 });
+    const tower = new THREE.Mesh(new THREE.CylinderGeometry(1.55, 2.35, 13, 28), stone);
+    tower.position.y = 6.5; lighthouse.add(tower);
+    const base = new THREE.Mesh(new THREE.CylinderGeometry(2.9, 3.1, 1.2, 28), stone);
+    base.position.y = 0.6; lighthouse.add(base);
+    const gallery = new THREE.Mesh(new THREE.CylinderGeometry(2.25, 2.25, 0.35, 28), iron);
+    gallery.position.y = 13.2; lighthouse.add(gallery);
+    const rail = new THREE.Mesh(new THREE.TorusGeometry(2.2, 0.05, 6, 40), iron);
+    rail.rotation.x = Math.PI / 2; rail.position.y = 14.1; lighthouse.add(rail);
+    var glass = new THREE.MeshBasicMaterial({ color: 0xffb066 });
+    const lantern = new THREE.Mesh(new THREE.CylinderGeometry(1.15, 1.15, 2.2, 16, 1, true), glass);
+    lantern.position.y = 14.5; lighthouse.add(lantern);
+    for (let i = 0; i < 8; i++) {
+      const mullion = new THREE.Mesh(new THREE.BoxGeometry(0.08, 2.2, 0.08), iron);
+      const a = (i / 8) * Math.PI * 2;
+      mullion.position.set(Math.cos(a) * 1.17, 14.5, Math.sin(a) * 1.17); lighthouse.add(mullion);
+    }
+    const roof = new THREE.Mesh(new THREE.ConeGeometry(1.6, 1.7, 16), iron);
+    roof.position.y = 16.45; lighthouse.add(roof);
+    const finial = new THREE.Mesh(new THREE.SphereGeometry(0.18, 8, 6), iron);
+    finial.position.y = 17.4; lighthouse.add(finial);
+  }
+  scene.add(lighthouse);
+
+  // soft glow sprite around the lantern
+  const glowTex = (() => {
+    const c = document.createElement('canvas'); c.width = c.height = 128;
+    const g = c.getContext('2d'); const gr = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+    gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.25, 'rgba(255,255,255,0.35)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
+    return new THREE.CanvasTexture(c);
+  })();
+  const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, color: 0xffa04a, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, fog: false }));
+  glow.position.set(0, LANTERN_Y, 0); glow.scale.set(8, 8, 1);
+  scene.add(glow);
+
+  // ---------- Beam ----------
+  const BEAM_L = 95;
+  const beamGeo = new THREE.ConeGeometry(7.5, BEAM_L, 40, 1, true);
+  beamGeo.translate(0, -BEAM_L / 2, 0);
+  beamGeo.rotateZ(Math.PI / 2);          // apex at origin, opening toward +X
+  const beamMat = new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending,
+    uniforms: { uPower: { value: 1 }, uL: { value: BEAM_L } },
+    vertexShader: `
+      uniform float uL; varying vec3 vN; varying vec3 vV; varying float vT;
+      void main(){
+        vT = clamp(position.x / uL, 0.0, 1.0);
+        vec4 mv = modelViewMatrix * vec4(position,1.0);
+        vN = normalize(normalMatrix * normal); vV = normalize(-mv.xyz);
+        gl_Position = projectionMatrix * mv;
+      }`,
+    fragmentShader: `
+      uniform float uPower; varying vec3 vN; varying vec3 vV; varying float vT;
+      void main(){
+        float edge = pow(abs(dot(normalize(vN), normalize(vV))), 1.8);
+        float a = edge * pow(1.0 - vT, 1.6) * uPower * 0.20;
+        gl_FragColor = vec4(vec3(1.0, 0.94, 0.82), a);
+      }`
+  });
+  const beam = new THREE.Group();
+  beam.position.set(0, LANTERN_Y, 0);
+  const coneA = new THREE.Mesh(beamGeo, beamMat);
+  const coneB = new THREE.Mesh(beamGeo, beamMat); coneB.rotation.y = Math.PI;
+  beam.add(coneA, coneB);
+  const spot = new THREE.SpotLight(0xfff0d2, 2.2, 140, 0.13, 0.7, 1.4);
+  const spotTarget = new THREE.Object3D(); spotTarget.position.set(60, -9, 0);
+  beam.add(spot, spotTarget); spot.target = spotTarget;
+  scene.add(beam);
+
+  // ---------- Fog banks ----------
+  const fogN = 70, fogPos = new Float32Array(fogN * 3), fogVel = [];
+  for (let i = 0; i < fogN; i++) {
+    const a = Math.random() * Math.PI * 2, r = 12 + Math.random() * 90;
+    fogPos.set([Math.cos(a) * r, 1 + Math.random() * 13, Math.sin(a) * r], i * 3);
+    fogVel.push(0.6 + Math.random() * 0.8);
+  }
+  const fogGeo = new THREE.BufferGeometry(); fogGeo.setAttribute('position', new THREE.BufferAttribute(fogPos, 3));
+  const fogMat = new THREE.PointsMaterial({ map: glowTex, color: 0x8fa0b6, size: 34, transparent: true, opacity: 0.08, depthWrite: false, fog: false });
+  scene.add(new THREE.Points(fogGeo, fogMat));
+
+  // ---------- Ash ----------
+  const ashN = 1100, ashPos = new Float32Array(ashN * 3), ashSeed = new Float32Array(ashN);
+  for (let i = 0; i < ashN; i++) {
+    ashPos.set([(Math.random() - 0.5) * 120, Math.random() * 45, (Math.random() - 0.5) * 120], i * 3);
+    ashSeed[i] = Math.random();
+  }
+  const ashGeo = new THREE.BufferGeometry(); ashGeo.setAttribute('position', new THREE.BufferAttribute(ashPos, 3));
+  const ashMat = new THREE.PointsMaterial({ color: 0xc8ced8, size: 0.16, transparent: true, opacity: 0.75, depthWrite: false });
+  scene.add(new THREE.Points(ashGeo, ashMat));
+
+  // ---------- Ravens ----------
+  const ravens = [];
+  {
+    const wing = new THREE.BufferGeometry();
+    wing.setAttribute('position', new THREE.BufferAttribute(new Float32Array([0, 0, -0.35, 0, 0, 0.45, 1.5, 0, -0.1]), 3));
+    const mat = new THREE.MeshBasicMaterial({ color: 0x040507, side: THREE.DoubleSide });
+    for (let i = 0; i < 7; i++) {
+      const g = new THREE.Group();
+      const R = new THREE.Mesh(wing, mat), L = new THREE.Mesh(wing, mat); L.scale.x = -1;
+      const body = new THREE.Mesh(new THREE.ConeGeometry(0.16, 1.1, 5), mat); body.rotation.x = Math.PI / 2;
+      g.add(R, L, body);
+      g.userData = { R, L, r: 11 + Math.random() * 9, h: LANTERN_Y + 1 + Math.random() * 7, sp: 0.18 + Math.random() * 0.12, off: Math.random() * Math.PI * 2, ph: Math.random() * 6 };
+      scene.add(g); ravens.push(g);
+    }
+  }
+
+  // ---------- Song structure: three 16 s sections on a 48 s loop ----------
+  const SECTIONS = [
+    { beamSpeed: 0.35, beamPower: 0.75, glow: 0.85, fog: 0.10, ash: 0.55, camR: 54, camY: 5,  camSpeed: 0.035, look: 13, density: 0.016 },
+    { beamSpeed: 0.95, beamPower: 1.35, glow: 1.45, fog: 0.055, ash: 1.0, camR: 40, camY: 21, camSpeed: 0.07,  look: 20, density: 0.010 },
+    { beamSpeed: 0.0,  beamPower: 0.22, glow: 0.5,  fog: 0.13, ash: 0.06, camR: 30, camY: 12, camSpeed: 0.012, look: 19, density: 0.021 }
+  ];
+  const SEC_LEN = 16, LOOP = SEC_LEN * 3;
+  const smooth = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+  function targetParams(t) {
+    const lt = t % LOOP, s = Math.floor(lt / SEC_LEN), local = lt - s * SEC_LEN;
+    const w = smooth(SEC_LEN - 3, SEC_LEN, local);
+    const A = SECTIONS[s], B = SECTIONS[(s + 1) % 3], out = {};
+    for (const k in A) out[k] = A[k] + (B[k] - A[k]) * w;
+    return { p: out, s, local };
+  }
+  const cur = Object.assign({}, SECTIONS[0]);
+
+  // ---------- Audio ----------
+  let actx = null, analyser = null, audioEl = null, freq = null;
+  const statusEl = document.getElementById('status');
+  function ensureCtx() {
+    if (!actx) {
+      const C = window.AudioContext || window.webkitAudioContext;
+      if (!C) return null;
+      actx = new C(); analyser = actx.createAnalyser(); analyser.fftSize = 1024; analyser.smoothingTimeConstant = 0.78;
+      freq = new Uint8Array(analyser.frequencyBinCount); analyser.connect(actx.destination);
+    }
+    if (actx.state === 'suspended') actx.resume().catch(() => {});
+    return actx;
+  }
+  document.getElementById('songLabel').addEventListener('click', ensureCtx);
+  document.getElementById('song').addEventListener('change', (ev) => {
+    const f = ev.target.files && ev.target.files[0];
+    if (!f) return;
+    if (!ensureCtx()) { statusEl.textContent = 'This browser cannot analyse audio, so the built-in pulse stays on.'; return; }
+    if (audioEl) { audioEl.pause(); URL.revokeObjectURL(audioEl.src); }
+    audioEl = new Audio(URL.createObjectURL(f)); audioEl.loop = true;
+    actx.createMediaElementSource(audioEl).connect(analyser);
+    audioEl.play().then(() => { setPlaying(true); }).catch(() => {
+      statusEl.textContent = 'The song is loaded. Press Play to start it.';
+    });
+    statusEl.innerHTML = 'Driven by <b></b>. Bass feeds the lantern, mids feed the ash.';
+    statusEl.querySelector('b').textContent = f.name;
+  });
+  let bass = 0, mid = 0;
+  function readAudio(t) {
+    if (audioEl && analyser && !audioEl.paused) {
+      analyser.getByteFrequencyData(freq);
+      let b = 0, m = 0;
+      for (let i = 1; i <= 8; i++) b += freq[i];
+      for (let i = 12; i <= 70; i++) m += freq[i];
+      bass += (b / 8 / 255 - bass) * 0.35;
+      mid += (m / 59 / 255 - mid) * 0.2;
+    } else {
+      const ph = (t * 66 / 60) % 1;
+      const beat = Math.exp(-ph * 9) + (ph > 0.18 ? 0.6 * Math.exp(-(ph - 0.18) * 9) : 0);
+      bass += (beat * 0.75 - bass) * 0.4;
+      mid += (0.35 + 0.15 * Math.sin(t * 0.7) - mid) * 0.1;
+    }
+  }
+
+  // ---------- Controls ----------
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let playing = !reduce;
+  const playBtn = document.getElementById('play');
+  function setPlaying(v) {
+    playing = v;
+    playBtn.textContent = v ? 'Pause' : 'Play';
+    if (audioEl) { if (v) { ensureCtx(); audioEl.play().catch(() => {}); } else audioEl.pause(); }
+  }
+  setPlaying(playing);
+  playBtn.addEventListener('click', () => setPlaying(!playing));
+  document.getElementById('full').addEventListener('click', () => {
+    const el = document.documentElement;
+    try {
+      if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+      else if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+    } catch (e) {}
+  });
+
+  const segs = [...document.querySelectorAll('.seg')];
+  const fills = segs.map(s => s.querySelector('.fill'));
+
+  // ---------- Resize ----------
+  function resize() {
+    const w = window.innerWidth, h = window.innerHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.fov = w / h < 0.8 ? 58 : 42;
+    camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', resize); resize();
+
+  // ---------- Loop ----------
+  let t = 2, beamAngle = 0.6, camAngle = 0.35, last = performance.now();
+  const lookAt = new THREE.Vector3();
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    if (playing) t += dt;
+    const step = playing ? dt : 0;
+    const { p, s, local } = targetParams(t);
+    const k = 1 - Math.exp(-step * 1.6);
+    for (const key in p) cur[key] += (p[key] - cur[key]) * (playing ? k : 0);
+    readAudio(t);
+
+    beamAngle += step * cur.beamSpeed * (1 + bass * 0.35);
+    beam.rotation.y = beamAngle;
+    beamMat.uniforms.uPower.value = cur.beamPower * (1 + bass * 0.25);
+    spot.intensity = 2.2 * cur.beamPower;
+
+    const g = cur.glow * (1 + bass * 0.55);
+    glass.color.setRGB(Math.min(1, 0.75 * g), Math.min(1, 0.46 * g), Math.min(1, 0.2 * g));
+    lanternLight.intensity = 1.4 * g;
+    const gs = 7 + g * 3.5; glow.scale.set(gs, gs, 1);
+    glow.material.opacity = Math.min(1, 0.55 + g * 0.3);
+
+    camAngle += step * cur.camSpeed;
+    camera.position.set(Math.sin(camAngle) * cur.camR, cur.camY + Math.sin(t * 0.21) * 0.6, Math.cos(camAngle) * cur.camR);
+    lookAt.set(0, cur.look, 0);
+    camera.lookAt(lookAt);
+    sky.position.copy(camera.position);
+
+    scene.fog.density = cur.density;
+    seaMat.uniforms.uTime.value = t;
+    seaMat.uniforms.uBeamAngle.value = -beamAngle;
+    seaMat.uniforms.uBeamPower.value = cur.beamPower;
+    seaMat.uniforms.uGlow.value = g;
+    seaMat.uniforms.uCam.value.copy(camera.position);
+    seaMat.uniforms.uFogDensity.value = cur.density;
+    stars.material.opacity = 0.25 + (1 - cur.fog / 0.13) * 0.45;
+
+    // fog banks drift with the wind
+    const fp = fogGeo.attributes.position.array;
+    for (let i = 0; i < fogN; i++) {
+      fp[i * 3] += step * fogVel[i] * 1.2;
+      if (fp[i * 3] > 100) fp[i * 3] = -100;
+    }
+    fogGeo.attributes.position.needsUpdate = true;
+    fogMat.opacity = cur.fog * (0.9 + mid * 0.3);
+
+    // ash rises; in the bridge it hangs almost still
+    const ap = ashGeo.attributes.position.array;
+    const rise = (0.6 + mid * 1.4) * cur.ash;
+    for (let i = 0; i < ashN; i++) {
+      const sd = ashSeed[i];
+      ap[i * 3 + 1] += step * rise * (0.5 + sd);
+      ap[i * 3] += step * cur.ash * Math.sin(t * 0.5 + sd * 20) * 0.4;
+      if (ap[i * 3 + 1] > 45) ap[i * 3 + 1] = 0;
+    }
+    ashGeo.attributes.position.needsUpdate = true;
+
+    for (const r of ravens) {
+      const u = r.userData, a = t * u.sp + u.off;
+      r.position.set(Math.cos(a) * u.r, u.h + Math.sin(t * 0.8 + u.ph) * 0.8, Math.sin(a) * u.r);
+      r.rotation.y = -a;
+      r.rotation.z = 0.25;
+      const flap = Math.sin(t * 5.5 + u.ph) * 0.55;
+      u.R.rotation.z = flap; u.L.rotation.z = -flap;
+    }
+
+    segs.forEach((el, i) => {
+      el.classList.toggle('on', i === s);
+      fills[i].style.width = (i < s ? 100 : i === s ? (local / SEC_LEN) * 100 : 0) + '%';
+    });
+
+    renderer.render(scene, camera);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>

@@ -1,0 +1,383 @@
+<title>Thaw · Verse 1 Lyric Test</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;1,500;1,600&family=Cormorant+Unicase:wght@300&family=Spectral:wght@200;300&family=JetBrains+Mono:wght@400&display=swap">
+<style>
+/* Layout: full-bleed frost-glass shader; lyric block floats left of the ember; quiet HUD on the bottom edge. Single dark world by design. */
+:root {
+  --room: #070a0f;
+  --frost: #b9c8d8;
+  --frost-dim: #6c7c8e;
+  --bone: #e6e3dd;
+  --ember: #ffad5c;
+  --line: rgba(185, 200, 216, 0.22);
+  --f-word: "Spectral", Georgia, serif;          /* connecting words */
+  --f-image: "Cormorant Garamond", Georgia, serif; /* metaphor words */
+  --f-mark: "Cormorant Unicase", Georgia, serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body {
+  background: var(--room); color: var(--bone); overflow: hidden;
+  font-family: var(--f-word);
+  padding-block: 0;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+#sparks { pointer-events: none; }
+.grain {
+  position: fixed; inset: 0; pointer-events: none; opacity: 0.08; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  animation: grain 0.9s steps(6) infinite;
+}
+@keyframes grain { 0%{transform:translate(0,0)} 25%{transform:translate(-3%,2%)} 50%{transform:translate(2%,-3%)} 75%{transform:translate(-2%,-1%)} 100%{transform:translate(0,0)} }
+
+.lyric {
+  position: fixed; left: 7vw; top: 50%; transform: translateY(-58%);
+  width: min(62vw, 980px);
+  display: grid; gap: 0.15em;
+  font-size: clamp(1.7rem, 4.6vw, 4.4rem); line-height: 1.12;
+  pointer-events: none;
+}
+.row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 0.28em; }
+.w { font-family: var(--f-word); font-weight: 200; color: var(--bone); white-space: nowrap; }
+.c { display: inline-block; opacity: 0; will-change: transform, opacity; }
+.cursor {
+  display: inline-block; width: 0.06em; height: 0.92em; margin-left: 0.04em;
+  background: var(--bone); opacity: 0; transform: translateY(0.12em);
+}
+.mirror {
+  font-family: var(--f-image); font-weight: 400; font-style: normal;
+  font-size: 1.22em; color: var(--frost); display: inline-block; white-space: nowrap;
+  transform-origin: 50% 60%;
+}
+.candle {
+  font-family: var(--f-image); font-style: italic; font-weight: 600;
+  font-size: 1.85em; letter-spacing: -0.01em; white-space: nowrap; line-height: 1;
+}
+.candle .c { color: #2a2420; }
+.place .c { font-family: var(--f-image); font-style: italic; font-weight: 500; }
+
+.hud {
+  position: fixed; left: 0; right: 0; bottom: 0;
+  padding-left: max(24px, env(safe-area-inset-left, 0px));
+  padding-right: max(24px, env(safe-area-inset-right, 0px));
+  padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px)); padding-top: 48px;
+  background: linear-gradient(to top, rgba(4,6,9,0.85), rgba(4,6,9,0));
+  display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px 28px;
+}
+.mark { display: grid; gap: 2px; min-width: 0; }
+.mark h1 { margin: 0; font-family: var(--f-mark); font-weight: 300; font-size: 1.6rem; letter-spacing: 0.3em; }
+.mark p { margin: 0; font-family: var(--f-mono); font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--frost-dim); }
+.deck { display: grid; gap: 10px; width: min(460px, 100%); min-width: 0; }
+.scrub { height: 2px; background: var(--line); position: relative; overflow: hidden; }
+.scrub i { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--ember); }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.btn, .field {
+  font-family: var(--f-mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--bone); background: rgba(10,14,20,0.6); border: 1px solid var(--line);
+  padding: 8px 12px; border-radius: 2px;
+}
+.btn { cursor: pointer; }
+.btn:hover { border-color: var(--frost); }
+.btn:focus-visible, .field input:focus-visible { outline: 1px solid var(--ember); outline-offset: 2px; }
+.field { display: inline-flex; align-items: center; gap: 6px; }
+.field input { width: 4.2em; background: transparent; border: 0; border-bottom: 1px solid var(--line); color: var(--bone); font: inherit; padding: 2px 0; }
+#song { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.status { font-family: var(--f-mono); font-size: 0.66rem; color: var(--frost-dim); letter-spacing: 0.05em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.status b { color: var(--ember); font-weight: 400; }
+
+@media (max-width: 700px) {
+  .lyric { left: 6vw; right: 6vw; width: auto; top: 30%; transform: none; font-size: clamp(1.5rem, 7.5vw, 2.6rem); }
+}
+@media (prefers-reduced-motion: reduce) { .grain { animation: none; } }
+</style>
+
+<canvas id="glass" aria-hidden="true"></canvas>
+<canvas id="sparks" aria-hidden="true"></canvas>
+<div class="grain" aria-hidden="true"></div>
+
+<div class="lyric" aria-label="The mirror kept a stranger's face. A candle burning out of place.">
+  <div class="row" id="row1">
+    <span class="w" data-t="1.4">The</span>
+    <span class="w" data-t="1.9">mirror</span>
+    <span class="w" data-t="2.7">kept</span>
+    <span class="w" data-t="3.2">a</span>
+    <span class="mirror" id="mirror">stranger’s face</span>
+  </div>
+  <div class="row" id="row2">
+    <span class="w" data-t="8.0">A</span>
+    <span class="candle" id="candle">candle</span>
+  </div>
+  <div class="row place" id="row3">
+    <span class="w scatter">burning</span>
+    <span class="w scatter">out</span>
+    <span class="w scatter">of</span>
+    <span class="w scatter last">place</span>
+    <span class="cursor" id="cursor"></span>
+  </div>
+</div>
+
+<div class="hud">
+  <div class="mark">
+    <h1>Thaw</h1>
+    <p>Verse 1 · kinetic lyric test · 72 bpm</p>
+  </div>
+  <div class="deck">
+    <div class="scrub"><i id="scrub"></i></div>
+    <div class="controls">
+      <button class="btn" id="play" type="button">Pause</button>
+      <button class="btn" id="restart" type="button">Restart</button>
+      <label class="btn" for="song" id="songLabel">Load Thaw</label>
+      <input type="file" id="song" accept="audio/*">
+      <label class="field" for="offset">Line at <input id="offset" type="number" min="0" step="0.1" value="0"> s</label>
+    </div>
+    <div class="status" id="status">Built-in clock. Load the Thaw render and enter when this line starts to sync it.</div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(() => {
+  const LOOP = 18;
+  const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+  const prog = (t, a, b) => clamp((t - a) / (b - a));
+  const easeOut = x => 1 - Math.pow(1 - x, 3);
+  const easeInOut = x => x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+  const hash = n => { const s = Math.sin(n * 91.345 + 13.1) * 43758.5453; return s - Math.floor(s); };
+
+  // ---------- frost glass shader ----------
+  const glass = document.getElementById('glass');
+  let renderer;
+  try { renderer = new THREE.WebGLRenderer({ canvas: glass, antialias: false }); }
+  catch (e) { renderer = null; }
+  const uniforms = {
+    uTime: { value: 0 }, uGrow: { value: 0.6 }, uMelt: { value: 0 }, uEmber: { value: 0.2 },
+    uRes: { value: new THREE.Vector2(1, 1) }, uEmberPos: { value: new THREE.Vector2(0.74, 0.34) }
+  };
+  if (renderer) {
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+    const scene = new THREE.Scene();
+    const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    const mat = new THREE.ShaderMaterial({
+      uniforms,
+      vertexShader: `varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy,0.,1.); }`,
+      fragmentShader: `
+        precision highp float;
+        uniform float uTime, uGrow, uMelt, uEmber; uniform vec2 uRes, uEmberPos; varying vec2 vUv;
+        vec2 h2(vec2 p){ p = vec2(dot(p,vec2(127.1,311.7)), dot(p,vec2(269.5,183.3))); return fract(sin(p)*43758.5453); }
+        float n2(vec2 p){ vec2 i=floor(p), f=fract(p); vec2 u=f*f*(3.-2.*f);
+          float a=h2(i).x, b=h2(i+vec2(1,0)).x, c=h2(i+vec2(0,1)).x, d=h2(i+vec2(1,1)).x;
+          return mix(mix(a,b,u.x),mix(c,d,u.x),u.y); }
+        float fbm(vec2 p){ float s=0., a=.5; for(int i=0;i<5;i++){ s+=a*n2(p); p*=2.03; a*=.5; } return s; }
+        float vor(vec2 p){ vec2 i=floor(p), f=fract(p); float d1=8., d2=8.;
+          for(int y=-1;y<=1;y++) for(int x=-1;x<=1;x++){ vec2 g=vec2(x,y); vec2 o=h2(i+g); float d=length(g+o-f);
+            if(d<d1){ d2=d1; d1=d; } else if(d<d2){ d2=d; } }
+          return d2-d1; }
+        void main(){
+          vec2 asp = vec2(uRes.x/uRes.y, 1.);
+          vec2 p = vUv*asp;
+          // dark room behind the glass
+          vec3 col = mix(vec3(0.020,0.028,0.040), vec3(0.055,0.070,0.092), vUv.y);
+          col += vec3(0.05,0.06,0.075) * smoothstep(0.9, 0.2, length((vUv-vec2(0.35,0.55))*asp));
+          // ember behind the ice
+          float d = length((vUv-uEmberPos)*asp);
+          float flick = 0.85 + 0.15*sin(uTime*11.0) * sin(uTime*7.3+1.3);
+          vec3 amber = vec3(1.0,0.58,0.24);
+          col += amber * uEmber * flick * (0.9*exp(-d*9.0) + 0.35*exp(-d*3.2));
+          col += vec3(1.0,0.86,0.62) * uEmber * smoothstep(0.022, 0.0, d) * 1.4;
+          // frost growing in from the edges
+          vec2 e = min(vUv, 1.-vUv); float edge = min(e.x*asp.x, e.y) ;
+          float crystal = 1.0 - smoothstep(0.0, 0.09, vor(p*9.0 + fbm(p*3.0)*1.4));
+          float fine = vor(p*34.0);
+          float n = fbm(p*4.0 + vec2(0., uTime*0.01));
+          float frost = smoothstep(0.0, 0.18, uGrow*0.62 - edge + n*0.32);
+          float melt = smoothstep(uMelt, uMelt*0.55, d) * step(0.001, uMelt);
+          frost *= 1.0 - melt;
+          float rim = smoothstep(uMelt*0.55, uMelt, d) * smoothstep(uMelt*1.25, uMelt, d) * step(0.001,uMelt);
+          vec3 fcol = vec3(0.62,0.70,0.80) * (0.18 + crystal*0.55 + (1.0-smoothstep(0.,0.05,fine))*0.18 + n*0.2);
+          col = mix(col, fcol, frost*0.82);
+          col += amber * frost * uEmber * exp(-d*2.6) * 0.45;        // ember light scattering in the frost
+          col += amber * rim * uEmber * 0.35;                         // wet, glowing melt edge
+          // vignette
+          col *= 1.0 - 0.55*smoothstep(0.45, 1.05, length((vUv-0.5)*vec2(1.2,1.0)));
+          gl_FragColor = vec4(col, 1.0);
+        }`
+    });
+    scene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), mat));
+    var drawGlass = () => renderer.render(scene, cam);
+  }
+
+  // ---------- sparks ----------
+  const sparks = document.getElementById('sparks');
+  const sx = sparks.getContext('2d');
+  const P = Array.from({ length: 70 }, (_, i) => ({ s: hash(i), s2: hash(i + 100), s3: hash(i + 200) }));
+
+  // ---------- text setup ----------
+  function splitChars(el) {
+    const txt = el.textContent; el.textContent = '';
+    return [...txt].map(ch => { const s = document.createElement('span'); s.className = 'c'; s.textContent = ch === ' ' ? ' ' : ch; el.appendChild(s); return s; });
+  }
+  const typed = [...document.querySelectorAll('[data-t]')].map(el => ({ t: +el.dataset.t, chars: splitChars(el) }));
+  const mirror = document.getElementById('mirror');
+  const candleChars = splitChars(document.getElementById('candle'));
+  const scatter = [...document.querySelectorAll('.scatter')].map(el => ({ last: el.classList.contains('last'), chars: splitChars(el) }));
+  let sIdx = 0; scatter.forEach(w => w.chars.forEach(c => { c._i = sIdx++; }));
+  const cursor = document.getElementById('cursor');
+
+  function layout() {
+    const w = innerWidth, h = innerHeight;
+    if (renderer) { renderer.setSize(w, h, false); uniforms.uRes.value.set(w, h); }
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    sparks.width = w * dpr; sparks.height = h * dpr; sx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    uniforms.uEmberPos.value.set(w < 700 ? 0.5 : 0.76, w < 700 ? 0.3 : 0.36);
+  }
+  addEventListener('resize', layout); layout();
+
+  // ---------- audio ----------
+  let actx, analyser, freq, audioEl = null, level = 0;
+  const statusEl = document.getElementById('status');
+  const offsetEl = document.getElementById('offset');
+  function ctx() {
+    if (!actx) {
+      const C = window.AudioContext || window.webkitAudioContext; if (!C) return null;
+      actx = new C(); analyser = actx.createAnalyser(); analyser.fftSize = 512; analyser.smoothingTimeConstant = 0.8;
+      freq = new Uint8Array(analyser.frequencyBinCount); analyser.connect(actx.destination);
+    }
+    if (actx.state === 'suspended') actx.resume().catch(() => {});
+    return actx;
+  }
+  document.getElementById('songLabel').addEventListener('click', ctx);
+  document.getElementById('song').addEventListener('change', e => {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    if (!ctx()) { statusEl.textContent = 'This browser cannot analyse audio; the built-in clock stays on.'; return; }
+    if (audioEl) { audioEl.pause(); URL.revokeObjectURL(audioEl.src); }
+    audioEl = new Audio(URL.createObjectURL(f));
+    actx.createMediaElementSource(audioEl).connect(analyser);
+    audioEl.currentTime = Math.max(0, (+offsetEl.value || 0) - 1.2);
+    audioEl.play().then(() => setPlaying(true)).catch(() => { statusEl.textContent = 'Song loaded. Press Play.'; });
+    statusEl.innerHTML = 'Synced to <b></b>. The vocal feeds the ember.';
+    statusEl.querySelector('b').textContent = f.name;
+  });
+  offsetEl.addEventListener('change', () => { if (audioEl) audioEl.currentTime = Math.max(0, (+offsetEl.value || 0) - 1.2); });
+
+  // ---------- transport ----------
+  const reduce = matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let playing = !reduce, clock = reduce ? 12.6 : 0, last = performance.now();
+  const playBtn = document.getElementById('play');
+  function setPlaying(v) {
+    playing = v; playBtn.textContent = v ? 'Pause' : 'Play';
+    if (audioEl) { if (v) { ctx(); audioEl.play().catch(() => {}); } else audioEl.pause(); }
+  }
+  setPlaying(playing);
+  playBtn.addEventListener('click', () => setPlaying(!playing));
+  document.getElementById('restart').addEventListener('click', () => {
+    clock = 0; if (audioEl) audioEl.currentTime = Math.max(0, (+offsetEl.value || 0) - 1.2);
+  });
+  const scrub = document.getElementById('scrub');
+
+  // ---------- the timeline: a pure function of t (ports 1:1 to Remotion's useCurrentFrame) ----------
+  function render(t, now) {
+    // background states
+    const candleOn = prog(t, 8.6, 10.4);
+    const fadeOut = prog(t, 16.0, 17.6);
+    uniforms.uTime.value = now / 1000;
+    uniforms.uGrow.value = 0.55 + 0.45 * easeOut(prog(t, 0, 7.5)) + 0.25 * fadeOut;
+    uniforms.uMelt.value = 0.30 * easeOut(prog(t, 8.8, 12.5)) * (1 - easeInOut(fadeOut));
+    uniforms.uEmber.value = (0.16 + 0.95 * easeOut(candleOn)) * (1 - 0.75 * fadeOut) * (1 + level * 0.6);
+
+    const textAlpha = 1 - easeInOut(fadeOut);
+
+    // line 1: word-by-word type-on
+    typed.forEach(w => w.chars.forEach((c, i) => {
+      const a = easeOut(prog(t, w.t + i * 0.045, w.t + i * 0.045 + 0.35));
+      c.style.opacity = (a * textAlpha).toFixed(3);
+      c.style.transform = `translateY(${(1 - a) * 0.25}em)`;
+      c.style.filter = `blur(${((1 - a) * 6).toFixed(1)}px)`;
+    }));
+
+    // "stranger's face": surfaces mirrored in the frost, then turns to face you, still cold
+    const mIn = easeOut(prog(t, 4.0, 5.4));
+    const turn = easeInOut(prog(t, 5.8, 7.2));
+    const sx2 = -1 + 2 * turn;
+    mirror.style.opacity = (mIn * (0.45 + 0.4 * turn) * textAlpha).toFixed(3);
+    mirror.style.transform = `scaleX(${sx2.toFixed(3)}) skewY(${((1 - turn) * -2).toFixed(2)}deg)`;
+    mirror.style.filter = `blur(${(4.5 * (1 - turn) + 1.1).toFixed(1)}px)`;
+    mirror.style.textShadow = `0 0 ${18 + 10 * (1 - turn)}px rgba(170,195,220,0.35)`;
+
+    // "candle": letters catch fire left to right
+    candleChars.forEach((c, i) => {
+      const a = easeOut(prog(t, 8.5 + i * 0.12, 9.2 + i * 0.12));
+      const g = uniforms.uEmber.value;
+      c.style.opacity = (Math.max(a, 0) * textAlpha).toFixed(3);
+      const r = Math.round(42 + (255 - 42) * a), gg = Math.round(36 + (176 - 36) * a), b = Math.round(32 + (100 - 32) * a);
+      c.style.color = `rgb(${r},${gg},${b})`;
+      const flick = 0.8 + 0.2 * Math.sin(now / 90 + i * 1.7);
+      c.style.textShadow = a > 0.05 ? `0 0 ${Math.round(14 * g * flick)}px rgba(255,150,60,${(0.55 * a).toFixed(2)}), 0 0 ${Math.round(42 * g)}px rgba(255,120,40,${(0.3 * a).toFixed(2)})` : 'none';
+      c.style.transform = `translateY(${((1 - a) * 0.12).toFixed(3)}em)`;
+    });
+
+    // "burning out of place": letters drift in from wrong places; "place" never quite settles
+    scatter.forEach(w => w.chars.forEach((c, k) => {
+      const i = c._i, s1 = hash(i * 3.1), s2 = hash(i * 7.7), s3 = hash(i * 1.9);
+      const st = 11.0 + i * 0.07;
+      const a = easeOut(prog(t, st, st + 1.4));
+      const resid = w.last ? 1 : 0;
+      const dx = (s1 - 0.5) * 3.2, dy = (s2 - 0.5) * 2.4 - 0.6, rot = (s3 - 0.5) * 140;
+      const fx = resid * (s1 - 0.5) * 0.12, fy = resid * (s2 - 0.5) * 0.18, fr = resid * (s3 - 0.5) * 16;
+      const x = dx * (1 - a) + fx, y = dy * (1 - a) + fy, r = rot * (1 - a) + fr;
+      c.style.opacity = (prog(t, st - 0.1, st + 0.5) * textAlpha).toFixed(3);
+      c.style.transform = `translate(${x.toFixed(3)}em, ${y.toFixed(3)}em) rotate(${r.toFixed(1)}deg)`;
+      const heat = w.last ? 0.7 : 0.25 * (1 - a);
+      c.style.color = `rgb(${230 + 25 * heat | 0},${227 - 40 * heat | 0},${221 - 110 * heat | 0})`;
+    }));
+
+    // cursor blinks after the line, then the frost takes it back
+    const cOn = t > 13.4 && t < 16.4;
+    cursor.style.opacity = cOn && Math.floor(t * 2.4) % 2 === 0 ? (0.8 * textAlpha).toFixed(2) : '0';
+
+    // sparks rising from the ember once the candle is lit
+    const W = innerWidth, H = innerHeight;
+    sx.clearRect(0, 0, W, H);
+    const ex = uniforms.uEmberPos.value.x * W, ey = (1 - uniforms.uEmberPos.value.y) * H;
+    const intensity = candleOn * (1 - fadeOut);
+    if (intensity > 0.01) {
+      sx.globalCompositeOperation = 'lighter';
+      for (const p of P) {
+        const life = 3 + p.s2 * 3;
+        const age = ((now / 1000) * (0.6 + p.s * 0.5) + p.s3 * life) % life;
+        const k = age / life;
+        const x = ex + (p.s - 0.5) * 40 + Math.sin(age * 2 + p.s * 9) * 18 * k;
+        const y = ey - age * (40 + p.s2 * 50);
+        const a = (1 - k) * intensity * 0.9;
+        sx.fillStyle = `rgba(255,${150 + p.s * 70 | 0},80,${a.toFixed(3)})`;
+        sx.beginPath(); sx.arc(x, y, 0.8 + p.s3 * 1.6, 0, 6.283); sx.fill();
+      }
+      sx.globalCompositeOperation = 'source-over';
+    }
+
+    scrub.style.width = (t / LOOP * 100).toFixed(2) + '%';
+  }
+
+  function frame(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    let t;
+    if (audioEl && !audioEl.paused) {
+      t = audioEl.currentTime - ((+offsetEl.value || 0) - 1.2);
+      if (t >= LOOP) { audioEl.currentTime = Math.max(0, (+offsetEl.value || 0) - 1.2); t = 0; }
+      analyser.getByteFrequencyData(freq);
+      let v = 0; for (let i = 6; i < 40; i++) v += freq[i];
+      level += (v / 34 / 255 - level) * 0.2;
+    } else {
+      if (playing) clock = (clock + dt) % LOOP;
+      t = clock; level *= 0.9;
+    }
+    render(Math.max(0, t), now);
+    if (drawGlass) drawGlass();
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
