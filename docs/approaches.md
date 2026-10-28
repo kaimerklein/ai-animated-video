@@ -11,6 +11,7 @@ Goal: videos that look intentional and professional without paying for AI video 
 | **Code-built worlds** (three.js, GLSL shaders) | Free | Very high | Procedural, stylised | Choruses, loops, audio-reactive scenes | Prototype done (lighthouse) |
 | **Kinetic typography** (HTML/Remotion) | Free | Very high | Lyrics as part of the scene | Any song, explainers | Prototype done (frost/mirror) |
 | **Audio visualizer** (Remotion + `visualizeAudio`) | Free | High | Reactive shapes/particles | Beds under stills, intros/outros | Spec written |
+| **Automated code-editing of recorded footage** (Claude Code + Remotion + transcript; [automated-editing.md](automated-editing.md)) | Low (API calls) | Very high | Edited talking-head/screen video with zooms, captions, lower thirds | Explainers; captions/zoom rules also for music videos | Adopted as method; house-style skill written |
 | **Blender 3D worlds** | Free software; time | Highest | Real camera moves through a built world | Later phase, hero scenes | Planned |
 | **Game engine (Unreal)** | Free; steep learning | Highest | Realtime cinematic | Probably overkill | Parked |
 | **AI video (image-to-video, lip-sync)** | Pay per second | Low–medium | Realistic motion | Phase 2 scenes with the artist singing | Deferred |
@@ -21,6 +22,7 @@ Goal: videos that look intentional and professional without paying for AI video 
 3. **Prototype in the browser, render in Remotion.** Browser HTML is the fast sketchpad; the same `render(t)` logic ports to Remotion for deterministic frame-by-frame export.
 4. **Claude drives the tools.** Claude Code on the Mac controls ComfyUI via MCP; claude.ai can reach it through a secured tunnel (see [comfyui-flux.md](comfyui-flux.md)).
 5. **Blender later**, merged with the visualizer: build a 3D world once, fly a camera through it, use that as background (see [blender-3d.md](blender-3d.md)).
+6. **Skills before scale.** Claude writes Remotion code with two skill layers loaded: the official Remotion skills (syntax) and our house-style skill (mechanics and look). Editing is code-as-video, reviewed in Remotion Studio (see [automated-editing.md](automated-editing.md)).
 
 ## The layered-scene recipe
 A typical shot is built bottom-up:
@@ -36,3 +38,5 @@ Reuse across songs by changing the stills, the palette and the timeline, not the
 
 ## What the reference videos taught us
 The "The End Of The Show" style video (animated entirely in TypeScript + three.js/Remotion, narrated by Claude) uses: consistent scenes that evolve through the song, lyrics animated as part of the world (not subtitles), an orchestrator that plans scenes plus per-scene sub-agents, and a dashboard to review scenes. See [references.md](references.md).
+
+Christian Peverelli's editing walkthrough adds: skill files as the main quality lever, transcript timestamps as the master clock for every edit, and a human review pass in Remotion Studio rather than fully unattended runs. See [automated-editing.md](automated-editing.md).

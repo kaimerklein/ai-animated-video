@@ -35,5 +35,8 @@ Goal: a `timing.json` with start/end per word (and section markers) for any song
 }
 ```
 
+## Spoken narration (explainers)
+Easier than singing: plain Whisper (or Descript's transcript export) gives usable word timestamps without forced alignment. Convert the JSON/SRT into the same `timing.json` shape so captions, zooms and ducking read one format ([automated-editing.md](automated-editing.md)).
+
 ## Why it matters
 With `timing.json`, hand-set `data-t` times in prototypes become data. The Remotion port reads it and every animation lines up with the real vocal.

@@ -18,7 +18,7 @@ projects/  Pointers to consuming repos (no content copied)
 
 ## Rules for adding things
 - Browser prototypes: one self-contained HTML file, three.js r128 UMD from cdnjs, honor `prefers-reduced-motion`.
-- Remotion code: TypeScript, one `Composition` per video, shared components in `tools/remotion-visualizer/src/components`.
+- Remotion code: TypeScript, one `Composition` per video, shared components in `tools/remotion-visualizer/src/components`. Follow `.claude/skills/video-house-style/SKILL.md` plus the official Remotion skills (`npx skills add remotion-dev/skills`).
 - ComfyUI workflows: export as API-format JSON into `tools/comfyui/workflows/` with a short note on required model files.
 - Binaries (mp3, wav, mp4, png, jpg, blend, glb, …) go through Git LFS (`.gitattributes`). Never commit raw ComfyUI output dumps; only used images.
 - Secrets (ngrok token, bearer tokens) only in `.env` (git-ignored).

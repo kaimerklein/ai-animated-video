@@ -35,6 +35,7 @@ overlays/stock ─┤        ├─ three.js / shader worlds
 | Set up local FLUX + ComfyUI, driven by Claude | [docs/comfyui-flux.md](docs/comfyui-flux.md) |
 | Animate stills with DepthFlow | [docs/depthflow.md](docs/depthflow.md) |
 | Build a Remotion visualizer | [docs/remotion.md](docs/remotion.md) |
+| Automate editing (zooms, captions, ducking) with Claude Code | [docs/automated-editing.md](docs/automated-editing.md) |
 | Build three.js worlds and lyric animation | [docs/threejs-and-kinetic-type.md](docs/threejs-and-kinetic-type.md) |
 | Go 3D with Blender | [docs/blender-3d.md](docs/blender-3d.md) |
 | Get exact word timings for lyrics | [docs/audio-sync.md](docs/audio-sync.md) |

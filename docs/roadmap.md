@@ -7,10 +7,11 @@
 - [x] three.js lighthouse world prototype
 - [x] Kinetic lyric prototype (frost / mirror / candle)
 - [x] Central repo created and structured
+- [x] Analysed automated editing with Claude Code + Remotion ([automated-editing.md](automated-editing.md)); house-style skill added (`.claude/skills/video-house-style/`)
 
 ## Next
 - [ ] Get `timing.json` for the first song via forced alignment ([audio-sync.md](audio-sync.md))
-- [ ] Scaffold Remotion project in `tools/remotion-visualizer/`; port the kinetic prototype
+- [ ] Scaffold Remotion project in `tools/remotion-visualizer/`; install official Remotion agent skills; port the kinetic prototype using the house-style skill
 - [ ] Re-test the claude.ai ↔ ComfyUI connector; render the three still-world test images
 - [ ] DepthFlow at video scale: one full song section with overlays
 - [ ] Export ComfyUI workflow JSON into `tools/comfyui/workflows/`
@@ -21,7 +22,9 @@
 - [ ] Orchestrator + per-scene agents + review dashboard for longer videos
 - [ ] Blender worlds and fly-throughs; image-to-3D assets
 - [ ] Phase 2: AI lip-sync scenes, used selectively
-- [ ] Explainer-video template (narration `timing.json`, self-building diagrams)
+- [ ] Explainer-video template (narration `timing.json`, self-building diagrams) with the editing automations: captions, punch-ins, lower thirds, music ducking ([automated-editing.md](automated-editing.md))
+- [ ] Decide explainer pre-processing: Descript vs. local Whisper + FFmpeg silence cut
+- [ ] Measure our own edit time per video (creator claims 15–30 min vs. 4–8 h manual)
 - [ ] Evaluate HeyGen HyperFrames for automating editing/post-production
 
 ## Open questions

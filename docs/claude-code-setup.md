@@ -17,6 +17,11 @@ You can drive a Claude Code session on the Mac from the Claude Desktop app (same
 - ComfyUI MCP (FLUX generation) — see [comfyui-flux.md](comfyui-flux.md)
 - Blender MCP (later) — see [blender-3d.md](blender-3d.md)
 
+## Skills
+- Repo skill: `.claude/skills/video-house-style/` — loaded automatically when Claude Code runs in this repo.
+- Official Remotion skills, once per Remotion project: `npx skills add remotion-dev/skills` (or accept the offer during scaffolding).
+- Song/channel repos can add their own style skill on top. See [automated-editing.md](automated-editing.md).
+
 ## Cloud chat vs Claude Code
 | Surface | Strength |
 |---|---|
