@@ -14,6 +14,8 @@ Syntax questions (how `<Sequence>`, `spring()`, `<OffthreadVideo>` work) → use
 - Always pass `extrapolateLeft/Right: 'clamp'` to `interpolate` unless you deliberately want overshoot.
 - fps and size come from the composition (`useVideoConfig()`), never hard-coded in components.
 - Assets via `staticFile()`; video via `<OffthreadVideo>`.
+- Self-check before finishing: no overlapping elements, text large enough (≈3 % of frame height minimum), readable contrast, everything inside the safe area. Fix, then say what was checked.
+- HTML prototypes that will be captured expose `window.render(t)` and `window.DURATION`; capture steps `t = frame / fps`, never real-time screenshots.
 - Before declaring done: open in Remotion Studio (`npx remotion studio`) or render a short range (`--frames=a-b`) of the hardest section.
 
 ## Look
@@ -22,6 +24,7 @@ Syntax questions (how `<Sequence>`, `spring()`, `<OffthreadVideo>` work) → use
 - Music videos: lyrics live inside the world (frost, glass, light), not in a subtitle bar. Each key word gets a behaviour that mirrors its meaning.
 - Explainers: word-by-word captions, current word highlighted in the accent colour, max two lines, lower-third safe area kept free.
 - Grain + vignette on every finished frame unless the project style says otherwise.
+- Polished explainers / motion graphics: glassmorphism panels, metallic accents, particles and glow via shaders, one continuous 3D camera instead of slideshow cuts (see `docs/threejs-motion-graphics.md`).
 
 ## Editing moves
 - Zoom / punch-in: scale 1.00 → 1.06–1.10 over 6–10 frames on an emphasis word, ease back over ≥ 20 frames. Max one punch-in per ~5 s. Music videos: slow push-ins only (≤ 1.05 over seconds).

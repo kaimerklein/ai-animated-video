@@ -12,6 +12,7 @@ Goal: videos that look intentional and professional without paying for AI video 
 | **Kinetic typography** (HTML/Remotion) | Free | Very high | Lyrics as part of the scene | Any song, explainers | Prototype done (frost/mirror) |
 | **Audio visualizer** (Remotion + `visualizeAudio`) | Free | High | Reactive shapes/particles | Beds under stills, intros/outros | Spec written |
 | **Automated code-editing of recorded footage** (Claude Code + Remotion + transcript; [automated-editing.md](automated-editing.md)) | Low (API calls) | Very high | Edited talking-head/screen video with zooms, captions, lower thirds | Explainers; captions/zoom rules also for music videos | Adopted as method; house-style skill written |
+| **Premium 3D motion graphics** (Claude-written three.js + shaders, glass/metal, camera fly-through; [threejs-motion-graphics.md](threejs-motion-graphics.md)) | Free (a few cents of tokens) | Very high | Product-style showreel, technical concepts in 3D | Explainers, polished intros/outros | Recipe documented |
 | **Blender 3D worlds** | Free software; time | Highest | Real camera moves through a built world | Later phase, hero scenes | Planned |
 | **Game engine (Unreal)** | Free; steep learning | Highest | Realtime cinematic | Probably overkill | Parked |
 | **AI video (image-to-video, lip-sync)** | Pay per second | Low–medium | Realistic motion | Phase 2 scenes with the artist singing | Deferred |

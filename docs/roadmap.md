@@ -8,6 +8,7 @@
 - [x] Kinetic lyric prototype (frost / mirror / candle)
 - [x] Central repo created and structured
 - [x] Analysed automated editing with Claude Code + Remotion ([automated-editing.md](automated-editing.md)); house-style skill added (`.claude/skills/video-house-style/`)
+- [x] Documented the Claude + three.js premium motion-graphics recipe ([threejs-motion-graphics.md](threejs-motion-graphics.md)); self-check pass added to house style
 
 ## Next
 - [ ] Get `timing.json` for the first song via forced alignment ([audio-sync.md](audio-sync.md))
@@ -25,6 +26,8 @@
 - [ ] Explainer-video template (narration `timing.json`, self-building diagrams) with the editing automations: captions, punch-ins, lower thirds, music ducking ([automated-editing.md](automated-editing.md))
 - [ ] Decide explainer pre-processing: Descript vs. local Whisper + FFmpeg silence cut
 - [ ] Measure our own edit time per video (creator claims 15–30 min vs. 4–8 h manual)
+- [ ] Deterministic frame-capture script for HTML prototypes (`tools/frame-capture/`: headless Chromium steps `render(t)` → FFmpeg)
+- [ ] First 3D motion-graphics explainer test (30–45 s, glass + metal) with the prompt template
 - [ ] Evaluate HeyGen HyperFrames for automating editing/post-production
 
 ## Open questions

@@ -4,6 +4,7 @@
 - **"The End Of The Show" — Claude music video about AI taking over.** Animated in TypeScript with three.js/Remotion by Claude Opus 5.5. Take-aways: consistent scenes, lyrics as animated text inside the world, orchestrator + sub-agents. Source: <https://youtu.be/tKrVYOUvrtA>
 - Second video about code-built animation: <https://youtu.be/3TNpOD6bov8> (to review)
 - **Video on automating editing and post-production with Claude** — mentions **HyperFrames by HeyGen**. To review; not yet evaluated.
+- **Matt Penny — "Claude + Three.js = Premium 3D Motion Graphics".** Script with timings → three.js + shaders (glassmorphism, metal, particles) → headless capture → mp4; prompt tips and self-verification. Source: <https://www.youtube.com/watch?v=CCUSpJkAfgU>. Analysed in [threejs-motion-graphics.md](threejs-motion-graphics.md).
 - **Christian Peverelli — automated video editing with Claude Code + Remotion.** Code-as-video editing of recorded footage: Descript pre-cut, transcript-driven zooms/captions/lower thirds, music ducking, custom skill files. Analysed in [automated-editing.md](automated-editing.md).
 
 ## Tools
