@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Data Systems Explainer</title>
+  <meta name="description" content="30-second three.js + GSAP motion-graphics explainer PoC (glass, titanium, GLSL)." />
+
+  <!-- House-style type: Cormorant Garamond (display), Spectral (body), JetBrains Mono (HUD) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=JetBrains+Mono:wght@400;500&family=Spectral:wght@300;400&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="stage" id="stage">
+    <!-- WebGL output (three.js + post-processing) -->
+    <canvas id="gl" aria-hidden="true"></canvas>
+
+    <!-- HTML overlay: one caption per scene. GSAP drives every property; nothing animates in CSS. -->
+    <div class="overlay" id="overlay">
+      <section class="cap cap--left" data-cap="0" aria-label="Scene 1">
+        <div class="cap__card">
+          <p class="cap__eyebrow">01 · The challenge</p>
+          <h2 class="cap__title"><span class="w">Complex</span> <span class="w">Data</span> <span class="w">Systems</span></h2>
+          <p class="cap__sub">Thousands of sources, one fragile picture.</p>
+        </div>
+      </section>
+
+      <section class="cap cap--left" data-cap="1" aria-label="Scene 2">
+        <div class="cap__card">
+          <p class="cap__eyebrow">02 · The engine</p>
+          <h2 class="cap__title"><span class="w">Unified</span> <span class="w">Real-Time</span> <span class="w">Processing</span></h2>
+          <p class="cap__sub">Every signal streamed, joined and resolved as it happens.</p>
+        </div>
+      </section>
+
+      <section class="cap cap--left" data-cap="2" aria-label="Scene 3">
+        <div class="cap__card">
+          <p class="cap__eyebrow">03 · The outcome</p>
+          <h2 class="cap__title"><span class="w">Scalable</span> <span class="w">Enterprise</span> <span class="w">Intelligence</span></h2>
+          <p class="cap__sub">One consistent model, deployed at every node.</p>
+        </div>
+      </section>
+
+      <section class="cap cap--center" data-cap="3" aria-label="Call to action">
+        <div class="cap__card">
+          <!-- Placeholder brand: replace "Lumen" with the real product name -->
+          <p class="cap__eyebrow">Lumen Platform</p>
+          <h2 class="cap__title"><span class="w">Clarity</span> <span class="w">at</span> <span class="w">every</span> <span class="w">scale.</span></h2>
+          <div class="cap__cta">
+            <span class="pill">Book a live demo <span class="pill__arrow">→</span></span>
+            <span class="cap__url">lumen.example/demo</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Startup veil while fonts load, shaders compile and the self-check runs -->
+    <div class="veil" id="veil"><span>Calibrating</span></div>
+  </main>
+
+  <!-- Review deck (hidden with ?capture) -->
+  <nav class="deck" id="deck" aria-label="Playback">
+    <button class="deck__play" id="play" type="button" aria-label="Play / pause">▶</button>
+    <div class="deck__chips" id="chips"></div>
+    <input class="deck__scrub" id="scrub" type="range" min="0" max="30" step="0.0166667" value="0" aria-label="Timeline" />
+    <span class="deck__time" id="time">00.00</span>
+  </nav>
+
+  <!-- Self-check report (shown with ?debug) -->
+  <aside class="check" id="check" hidden></aside>
+
+  <script type="module" src="./main.js"></script>
+</body>
+</html>

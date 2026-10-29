@@ -9,6 +9,7 @@
 - [x] Central repo created and structured
 - [x] Analysed automated editing with Claude Code + Remotion ([automated-editing.md](automated-editing.md)); house-style skill added (`.claude/skills/video-house-style/`)
 - [x] Documented the Claude + three.js premium motion-graphics recipe ([threejs-motion-graphics.md](threejs-motion-graphics.md)); self-check pass added to house style
+- [x] First 3D motion-graphics explainer PoC: `tools/motion-graphics/data-systems-explainer/` (30 s, glass + titanium, GSAP timeline seeked by `render(t)`, self-check with automatic scrim fix, capture script)
 
 ## Next
 - [ ] Get `timing.json` for the first song via forced alignment ([audio-sync.md](audio-sync.md))
@@ -26,11 +27,12 @@
 - [ ] Explainer-video template (narration `timing.json`, self-building diagrams) with the editing automations: captions, punch-ins, lower thirds, music ducking ([automated-editing.md](automated-editing.md))
 - [ ] Decide explainer pre-processing: Descript vs. local Whisper + FFmpeg silence cut
 - [ ] Measure our own edit time per video (creator claims 15–30 min vs. 4–8 h manual)
-- [ ] Deterministic frame-capture script for HTML prototypes (`tools/frame-capture/`: headless Chromium steps `render(t)` → FFmpeg)
-- [ ] First 3D motion-graphics explainer test (30–45 s, glass + metal) with the prompt template
+- [ ] Generalise `data-systems-explainer/scripts/capture.mjs` into `tools/frame-capture/` for all HTML prototypes
+- [ ] Explainer PoC v2: real copy + narration `timing.json`, render a full mp4 with `scripts/capture.mjs --headed`
 - [ ] Evaluate HeyGen HyperFrames for automating editing/post-production
 
 ## Open questions
+- Browser prototypes: keep the single-file r128 UMD rule, or allow Vite + current three.js (needed for real glass refraction, used in the explainer PoC)?
 - Frame rate and default resolution (24 vs 30 fps; 1080p vs 4K)
 - Licence/terms for any commercial use of Remotion and Suno output (currently personal only)
 - Whether to publish tools as a package or keep them as copy-in examples
