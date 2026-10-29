@@ -37,7 +37,7 @@ overlays/stock ─┤        ├─ three.js / shader worlds
 | Build a Remotion visualizer | [docs/remotion.md](docs/remotion.md) |
 | Automate editing (zooms, captions, ducking) with Claude Code | [docs/automated-editing.md](docs/automated-editing.md) |
 | Build three.js worlds and lyric animation | [docs/threejs-and-kinetic-type.md](docs/threejs-and-kinetic-type.md) |
-| Make premium 3D motion graphics (explainers, polished pieces) | [docs/threejs-motion-graphics.md](docs/threejs-motion-graphics.md) |
+| Make premium 3D motion graphics (explainers, polished pieces) | [docs/threejs-motion-graphics.md](docs/threejs-motion-graphics.md), skill `.claude/skills/motion-graphics/` |
 | Go 3D with Blender | [docs/blender-3d.md](docs/blender-3d.md) |
 | Get exact word timings for lyrics | [docs/audio-sync.md](docs/audio-sync.md) |
 | Set up Claude Code, remote control, tunnels | [docs/claude-code-setup.md](docs/claude-code-setup.md) |

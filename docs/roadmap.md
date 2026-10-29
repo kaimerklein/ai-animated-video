@@ -1,6 +1,7 @@
 # Roadmap
 
 ## Done
+- [x] `motion-graphics` skill v0 (`.claude/skills/motion-graphics/`): house style, option menus, iterative process, build rules; distilled from the pizza PoC
 - [x] Research of cheap video approaches ([approaches.md](approaches.md))
 - [x] Local FLUX.2 + ComfyUI with Claude via MCP ([comfyui-flux.md](comfyui-flux.md))
 - [x] DepthFlow installed and tested; still-world rules written ([depthflow.md](depthflow.md), [still-world-rules.md](still-world-rules.md))
@@ -12,6 +13,8 @@
 - [x] First 3D motion-graphics explainer PoC: `tools/motion-graphics/data-systems-explainer/` (30 s, glass + titanium, GSAP timeline seeked by `render(t)`, self-check with automatic scrim fix, capture script)
 
 ## Next
+- [ ] Test the `motion-graphics` skill v0 on a topic unlike pizza (e.g. a technical flow) and refine it from what breaks
+- [ ] Extract the reusable kit from the pizza PoC (world, glass, connector, panels, captions, grade, review deck) so new pieces start from it
 - [ ] Get `timing.json` for the first song via forced alignment ([audio-sync.md](audio-sync.md))
 - [ ] Scaffold Remotion project in `tools/remotion-visualizer/`; install official Remotion agent skills; port the kinetic prototype using the house-style skill
 - [ ] Re-test the claude.ai ↔ ComfyUI connector; render the three still-world test images
