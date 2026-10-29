@@ -14,6 +14,30 @@ Best fit: **explainer videos and very polished pieces** (product-style motion gr
 
 No AI video model, no After Effects, no traditional 3D renderer.
 
+## Visual building blocks (from the video's frames)
+
+The look is a reusable kit, independent of the topic:
+
+| Block | What it is | Notes for us |
+|---|---|---|
+| World | Dark dome lit by large soft gradient blobs (violet, orange, blue, pink) | Swap palette per project; keep "blobs on dark", not a flat background |
+| Stations | Each step at its own 3D position; small orange "STEP 0X" eyebrow over one big white word | Eyebrow + one-word title = our scene header pattern |
+| Glass panels | Rounded extruded slabs, frosted (`MeshPhysicalMaterial`, transmission, roughness ~0.4); face is a canvas texture redrawn every frame | All UI motion (typing, checklists, counters, charts) lives on the canvas face |
+| Camera | Slow drift inside a station, fast whip between stations (expo ease) | Drift = reading time, whip = energy |
+| Connector | Glowing tube along a CatmullRom curve through all stations, draws on with a bright head | The story's thread; progress = curve parameter |
+| Props | Clear glass spheres, rings, icosahedra (dispersion) + small glowing orbs for parallax, kept off the camera path | Cheap depth |
+| Reveal | Camera pulls back to show all stations; dark scrim, title, glass pill fixed to camera | Standard ending |
+| Finish | HDR target + MSAA, subtle bloom (highlights only), neutral tone mapping, slight chromatic aberration, vignette, grain | Same "grade" layer as our music videos |
+
+### Prompt structure used in the video (paraphrased)
+1. Specs: duration, resolution, fps, style keyword.
+2. Render method: frame by frame to mp4 (Playwright + ffmpeg), every animation driven by `t`.
+3. World and materials.
+4. Camera behaviour and station header style.
+5. Scenes: `name (start–end s): objects + micro-animations`.
+6. Throughout: connector, props.
+7. Finish: post-processing, readability, check still frames of every scene before the full render.
+
 ## Key findings
 
 | Finding | Detail |
